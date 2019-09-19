@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import json
 import os, sys
 import argparse
 import unicodedata
@@ -8,107 +9,20 @@ import string
 import configparser
 import subprocess
 from shutil import rmtree
+from collections import namedtuple
+
 import io
 
-BASE = "base"
-TITLE_LEVEL = 2
+CFG = {}
 
-#folders
-LINKS = None
-BOARD = None
-THUMB = None
-
-INDEX = None
-SUMMARY = None
-
-VIEW = None
-PPR = None
-EMPTY_IMG = None
-
-TAG_SYM = "#"
-CAT_SYM = "$"
-DATE_SYM = "¢"
-AUTHOR_SYM = "£"
-SUBTITLE_SYM = "&"
-
-class ItemGenerator:
-    
+class Hook:
     @staticmethod
-    def make_from_hook(hook):
-        readme_path = Item.getReadme(hook)
-        Item.verify(hook)
-        with open(readme_path, "r") as readme:
-            return Item(hook, readme.readlines()[0][:-1])
-
-    # load item description from a single line in BOARD
-    @staticmethod
-    def make_from_line(line):
-        if(line[-1] == "\n"): #removing \n
-            line = line[:-1]
-        parts = line.split(":")
-        return Item(parts[1].strip(), parts[2].strip())
-
-def onlyHashtags(word):
-    for c in word:
-        if c != '#':
-            return False
-    return True
-
-def splitList(list, prefix):
-    first = [x[1:] for x in list if x.startswith(prefix)]
-    second = [x for x in list if not x.startswith(prefix)]
-    return first, second
-
-def getFirst(lista):
-    if len(lista) > 0:
-        return lista[0]
-    return None
-
-class Item:
-    # get first line from file to mount Item
-    def __init__(self, hook, line):
-        if line[-1] == '\n':
-            line = line[:-1]
-        words = line.split(" ")
-        if onlyHashtags(words[0]):
-            del words[0] ##removing ##
-        self.__fulltitle = " ".join(words) #removing the ##
-        self.hook = hook # directory
-        words     = [x     for x in words if not onlyHashtags(x)]
-        self.tags , words = splitList(words, TAG_SYM)
-        self.cat  , words = splitList(words, CAT_SYM)
-        self.date , words = splitList(words, DATE_SYM)
-        self.author,words = splitList(words, AUTHOR_SYM)
-        parts = " ".join(words).split(SUBTITLE_SYM)
-        self.title = parts[0].strip() if len(parts) > 0 else ''
-        self.subtitle = parts[1].strip() if len(parts) > 1 else None
-        self.cat = getFirst(self.cat)
-        self.date = getFirst(self.date)
-        self.author = getFirst(self.author)
-
-    def getFulltitle(self):
-        out = ''
-        if self.date != None:
-            out += DATE_SYM + self.date + ' '
-        if self.cat != None:
-            out += CAT_SYM + self.cat + ' '
-        out += self.title
-        if self.subtitle != None:
-            out += ' ' + SUBTITLE_SYM + ' ' + self.subtitle
-        for tag in self.tags:
-            out += ' ' + TAG_SYM + tag
-        if self.author != None:
-            out += ' ' + AUTHOR_SYM + self.author
-
-        return out
-
-    @staticmethod
-    def getReadme(hook):
-        return BASE + os.sep + hook + os.sep + "Readme.md"
+    def getReadmePath(hook):
+        return CFG.base_dir + os.sep + hook + os.sep + "Readme.md"
 
     @staticmethod
     def verify(hook):
-        readme_path = Item.getReadme(hook)
+        readme_path = Hook.getReadmePath(hook)
         data = []
         fulltext = ""
         with open(readme_path, "r") as f:
@@ -117,15 +31,18 @@ class Item:
 
         if len(data) == 0:
             print("file empty ", hook)
-            data.append('#' * TITLE_LEVEL + " Empty #empty\n")
+            data.append('#' * CFG.title_level + " Empty #empty\n")
 
         words = data[0].split(' ')
-        if words[0] != "#" * TITLE_LEVEL:
-            print("adicionando", '#' * TITLE_LEVEL, "em", hook)
+
+        def onlyHashtags(x): return len(x) == x.count("#")
+
+        if words[0] != "#" * CFG.title_level:
+            print("adicionando", '#' * CFG.title_level, "em", hook)
             if onlyHashtags(words[0]):
-                words[0] = "#" * TITLE_LEVEL
+                words[0] = "#" * CFG.title_level
             else:
-                data[0] = '#' * TITLE_LEVEL + " " + data[0]
+                data[0] = '#' * CFG.title_level + " " + data[0]
 
         if len(data) == 2:
             words = data[0].split(" ")
@@ -137,11 +54,80 @@ class Item:
             with open(readme_path, "w") as f:
                 f.write("".join(data))
 
+    @staticmethod
+    def makeThumb(hook):
+        source = CFG.base_dir  + os.sep + hook + os.sep + "__capa.jpg"
+        destin = CFG.thumb_dir + os.sep + hook + ".jpg"
+        if not os.path.isdir(CFG.thumb_dir):
+            print("folder missing ", CFG.thumb_dir)
+            exit(1)
+        if not os.path.isfile(destin) or os.path.getmtime(source) > os.path.getmtime(destin):
+            print("gerando thumb for", hook)
+            cmd = ['convert', source, '-resize', '380x200>', destin]
+            subprocess.run(cmd)
+
+    @staticmethod
+    def makeItem(hook):
+        readme_path = Hook.getReadmePath(hook)
+        Hook.verify(hook)
+        with open(readme_path, "r") as readme:
+            return Item(hook, readme.readlines()[0][:-1])
+
+class Item:
+    def __init__(self, hook, line):
+        if line[-1] == '\n':
+            line = line[:-1]
+        words = line.split(" ")
+
+        def onlyHashtags(x): return len(x) == x.count("#")
+        if onlyHashtags(words[0]):
+            del words[0] # removing ##
+        self.hook = hook
+        words = [x     for x in words if not onlyHashtags(x)]
+
+        #list, prefix
+        def splitList(l, p): return [x[1:] for x in l if x.startswith(p)], [x for x in l if not x.startswith(p)]
+
+        self.tags , words = splitList(words, CFG.symbols.tag)
+        self.cat  , words = splitList(words, CFG.symbols.category)
+        self.date , words = splitList(words, CFG.symbols.date)
+        self.author,words = splitList(words, CFG.symbols.author)
+        parts = " ".join(words).split(CFG.symbols.subtitle)
+        self.title = parts[0].strip() if len(parts) > 0 else ''
+        self.subtitle = parts[1].strip() if len(parts) > 1 else None
+        
+        def getFirst(lista): return lista[0] if len(lista) > 0 else None
+
+        self.cat = getFirst(self.cat)
+        self.date = getFirst(self.date)
+        self.author = getFirst(self.author)
+
+    def getReadmePath(self):
+        return CFG.base_dir + os.sep + self.hook + os.sep + "Readme.md"
+    
+    def getCover(self):
+        return CFG.base_dir + os.sep + self.hook + os.sep + "__capa.jpg"
+
+    def getFulltitle(self):
+        out = ''
+        if self.date != None:
+            out += CFG.symbols.date + self.date + ' '
+        if self.cat != None:
+            out += CFG.symbols.category + self.cat + ' '
+        out += self.title
+        if self.subtitle != None:
+            out += ' ' + CFG.symbols.subtitle + ' ' + self.subtitle
+        for tag in self.tags:
+            out += ' ' + CFG.symbols.tag + tag
+        if self.author != None:
+            out += ' ' + CFG.symbols.author + self.author
+
+        return out
+
     def getBoardEntry(self):
-        levels = BOARD.split(os.sep)
+        levels = CFG.board.split(os.sep)
         prefix = "../" * (len(levels) - 1)
-        return "[](" + prefix + Item.getReadme(self.hook) + ') : ' + self.hook + " : " + self.getFulltitle()
-        #return self.getCsv()
+        return "[](" + prefix + self.getReadmePath() + ') : ' + self.hook + " : " + self.getFulltitle()
 
     def getMdLink(self):
         title = self.getFulltitle()
@@ -173,64 +159,62 @@ class Itens:
         self.itens = []
 
     def parseFromFolders(self):
-        hooks = os.listdir(BASE)
-        hooks = [x for x in hooks if os.path.isdir(BASE + os.sep + x)]
+        hooks = os.listdir(CFG.base_dir)
+        hooks = [x for x in hooks if os.path.isdir(CFG.base_dir + os.sep + x)]
         for hook in hooks: 
             try:
-                self.itens.append(ItemGenerator.make_from_hook(hook))
+                self.itens.append(Hook.makeItem(hook))
             except FileNotFoundError as e:
                 print(e)
 
     def parseFromBoard(self):
-        with open(BOARD, "r") as f:
+        with open(CFG.board, "r") as f:
             names_list = [x for x in f.readlines() if x != "\n"]
             for line in names_list:
-                self.itens.append(ItemGenerator.make_from_line(line))
+                parts = line.split(":")
+                self.itens.appen(Item(parts[1].strip(), parts[2].strip()))
         
-    def __str__(self):
-        return "\n".join(str(v) for v in self.itens)
 
     def generateBoard(self):
         self.itens.sort(key=lambda x: x.getFulltitle())
-        with open(BOARD, "w") as names:
+        with open(CFG.board, "w") as names:
             names.write("\n".join([x.getBoardEntry() for x in self.itens]) + "\n")
 
     def updateTitles(self):
         for item in self.itens:
             data = []
-            readme_path = BASE + os.sep + item.hook + os.sep + "Readme.md"
-            if not os.path.exists(BASE + os.sep + item.hook): # folder not found
+            if not os.path.exists(CFG.base_dir + os.sep + item.hook): # folder not found
                 print("folder", item.hook, "not found, creating")
-                os.mkdir(BASE + os.sep + item.hook)
-                with open(readme_path, "w") as f:
-                    f.write('#' * TITLE_LEVEL + " " + item.getFulltitle() + " #empty\n")
+                os.mkdir(CFG.base_dir + os.sep + item.hook)
+                with open(item.getReadmePath(), "w") as f:
+                    f.write('#' * CFG.title_level + " " + item.getFulltitle() + " #empty\n")
             else:                
-                with open(readme_path, "r") as f: #updating first line content
+                with open(item.getReadmePath(), "r") as f: #updating first line content
                     data = f.readlines()
                 old_first_line = data[0]
-                new_first_line = '#' * TITLE_LEVEL + " " +  item.getFulltitle() + "\n"
+                new_first_line = '#' * CFG.title_level + " " +  item.getFulltitle() + "\n"
                 if(old_first_line != new_first_line):
-                    with open(readme_path, "w") as f: #reescreve linha 0
+                    with open(item.getReadmePath(), "w") as f: #reescreve linha 0
                         data[0] = new_first_line
                         f.write("".join(data))
 
     def generateLinks(self):
-        rmtree(LINKS, ignore_errors=True)
-        os.mkdir(LINKS)
-        levels = LINKS.split(os.sep)
+        rmtree(CFG.links_dir, ignore_errors=True)
+        os.mkdir(CFG.links_dir)
+        levels = CFG.links_dir.split(os.sep)
         prefix = "../" * len(levels)
         for item in self.itens:
-            with open(LINKS + os.sep + item.title.strip() + ".md", "w") as f:
-                f.write("[LINK](" + prefix + BASE + os.sep + item.hook + os.sep + "Readme.md)\n")
+            with open(CFG.links_dir + os.sep + item.title.strip() + ".md", "w") as f:
+                f.write("[LINK](" + prefix + item.getReadmePath() + ")\n")
 
     @staticmethod
-    def tree_generate(itens):
+    def __tree_generate(itens):
         tree = {}
         for item in itens:
             if item.cat == None:
-                if not '_' in tree:
-                    tree['_'] = []
-                tree['_'].append(item)
+                if not CFG.orphan_cat in tree:
+                    tree[CFG.orphan_cat] = []
+                tree[CFG.orphan_cat].append(item)
             else:
                 if not item.cat in tree:
                     tree[item.cat] = []
@@ -238,138 +222,100 @@ class Itens:
         return tree
 
     @staticmethod
-    def makeRow(data):
-        a = ""
-        b = ""
-        c = ""
-        a += data[0][0]
-        b += "-"
-        c += data[0][1]
-        for elem in data[1:]:
-            a += "|" + elem[0]
-            b += "|-"
-            c += "|" + elem[1]
-        a += "\n"
-        b += "\n"
-        c += "\n\n\n"
+    def __makeRow(data):
+        a = "|".join([x[0] for x in data]) + "\n"
+        b = "|".join(["-"] * len(data)) + "\n"
+        c = "|".join([x[1] for x in data]) + "\n\n\n"
         return a, b, c
 
     @staticmethod
-    def makeTableEntry(lista, prefix):
+    def __makeTableEntry(lista, prefix):
         data = []
         for item in lista:
-            title = item.title
+            sourceThumb  = prefix + CFG.thumb_dir + os.sep + item.hook + ".jpg"
+            entry = "[![](" + sourceThumb + ")](" + item.getReadmePath() + ")"
             if item.date:
-                title = item.date + "<br>" + title
-            sourceReadme = prefix + BASE + os.sep + item.hook + os.sep + "Readme.md"
-            sourceThumb  = prefix + THUMB + os.sep + item.hook + ".jpg"
-
-            entry = "[![](" + sourceThumb + ")](" + sourceReadme + ")"
-            data.append([entry, title])
+                data.append([entry, "@" + item.date + "<br>" + item.title])
+            else:
+                data.append([entry, "@" + item.hook + "<br>" + item.title])
         
-        while len(data) % PPR != 0:
-            data.append(["![](" + EMPTY_IMG + ")", "-"])
+        while len(data) % CFG.posts_per_row != 0:
+            if CFG.empty_fig != None:
+                data.append(["![](" + CFG.empty_fig + ")", "-"])
+            else:
+                data.append(["-", "-"])
         
         lines = []
-        for i in range(0, len(data), PPR):
-            a, b, c = Itens.makeRow(data[i: i + PPR])
+        for i in range(0, len(data), CFG.posts_per_row):
+            a, b, c = Itens.__makeRow(data[i: i + CFG.posts_per_row])
             lines += [a, b, c]
         return "".join(lines)
 
-    @staticmethod
-    def makeThumb(hook):
-        source = BASE  + os.sep + hook + os.sep + "__capa.jpg"
-        destin = THUMB + os.sep + hook + ".jpg"
-        if not os.path.isdir(THUMB):
-            print("folder missing ", THUMB)
-            exit(1)
-        if not os.path.isfile(destin) or os.path.getmtime(source) > os.path.getmtime(destin):
-            print("gerando thumb for", hook)
-            cmd = ['convert', source, '-resize', '380x200>', destin]
-            subprocess.run(cmd)
-
     def generateView(self):
         for item in self.itens:
-            Itens.makeThumb(item.hook)
-        tree = Itens.tree_generate(self.itens)
+            Hook.makeThumb(item.hook)
+
+        self.itens.sort(key=lambda x: x.getFulltitle())
+        tree = Itens.__tree_generate(self.itens)
         view_text = io.StringIO()
         view_text.write("## @qxcode\n\n")
-        levels = VIEW.split(os.sep)
+        levels = CFG.view.split(os.sep)
         prefix = "../" * (len(levels) - 1)
 
         for cat, lista in tree.items():
             view_text.write("\n### " + cat + "\n\n")
-            lista.sort(key=lambda x: x.getFulltitle(), reverse = True) 
-            text = Itens.makeTableEntry(lista, prefix)
+            lista.sort(key=lambda x: x.getFulltitle(), reverse = CFG.reverse_sort)
+            text = Itens.__makeTableEntry(lista, prefix)
             view_text.write(text)
         
-        with open(VIEW, "w") as f:
+        with open(CFG.view, "w") as f:
             f.write(view_text.getvalue())
 
     # update Readme.md
     def generateIndex(self):
-        self.itens.sort(key=lambda x: x.getFulltitle())
-        tree = Itens.tree_generate(self.itens)
+        tree = Itens.__tree_generate(self.itens)
         summary = io.StringIO()
         readme_text = io.StringIO()
         readme_text.write("## @qxcode\n\n")
         readme_text.write("## " + "Categorias" + "\n\n")
 
-        levels = INDEX.split(os.sep)
+        levels = CFG.index.split(os.sep)
         prefix = "../" * (len(levels) - 1)
 
         for cat, lista in tree.items():
             readme_text.write("\n### " + cat + "\n\n")
-            summary.write("#" + cat + "\n")
-            lista.sort(key=lambda x: x.title) #todo incluir data aqui para ordenar por data se houver?
+            lista.sort(key=lambda x: x.getFulltitle())
             for item in lista:
-                summary.write(item.hook + " ")
-                readme_path = BASE + os.sep + item.hook + os.sep + "Readme.md"
-                entry = "- [" + item.title.strip() + "](" + prefix + readme_path + "#" + item.getMdLink() + ")\n"
+                entry = "- [" + item.title.strip() + "](" + prefix + item.getReadmePath() + "#" + item.getMdLink() + ")\n"
                 readme_text.write(entry)
-            summary.write("\n\n")
         
-        if INDEX != None:
-            with open(INDEX, "w") as f:
+        if CFG.index != None:
+            with open(CFG.index, "w") as f:
                 f.write(readme_text.getvalue())
 
-        if SUMMARY != None:
-            with open(SUMMARY, "w") as f:
-                f.write(summary.getvalue())
-            readme_text.close()
-            summary.close()
+    def generateSummary(self):
+        tree = Itens.__tree_generate(self.itens)
+        summary = io.StringIO()
+        for cat, lista in tree.items():
+            summary.write("#" + cat + "\n")
+            for item in lista:
+                summary.write(item.hook + " ")
+            summary.write("\n\n")
+        with open(CFG.summary, "w") as f:
+            f.write(summary.getvalue())
+        summary.close()
 
-def getConfig(config, entryName, predicate, defaultValue):
-    if entryName in config and predicate(config[entryName]):
-        return config[entryName]
-    else:
-        return defaultValue
+    def __str__(self):
+        return "\n".join(str(v) for v in self.itens)
 
 def loadGlobals():
-    config = configparser.ConfigParser()
-    file = ".config.ini"
-    if not os.path.isfile(file):
-        print("create a config.ini like in https://github.com/senapk/indexer")
+    if not os.path.isfile(".config.json"):
+        print("create a .config.json like in https://github.com/senapk/indexer")
         exit(1)
-    try:
-        print("loading", file)
-        config.read(file)
-        global BASE, LINKS, SUMMARY, BOARD, INDEX, TITLE_LEVEL, VIEW, PPR, EMPTY_IMG, THUMB
-        BASE    = getConfig(config['DEFAULT'], "base"   , lambda x : x != '', 'base')
-        indexer = config["indexer"]
-        INDEX   = getConfig(indexer, "index"  , lambda x : x != '', None)
-        BOARD   = getConfig(indexer, "board"  , lambda x : x != '', None)
-        SUMMARY = getConfig(indexer, "summary", lambda x : x != '', None)
-        LINKS   = getConfig(indexer, "links"  , lambda x : x != '', None)
-        VIEW    = getConfig(indexer, "view"  , lambda x : x != '', None)
-        THUMB   = getConfig(indexer, "thumb"  , lambda x : x != '', None)
-        PPR     = int(getConfig(indexer, "posts_per_row"  , lambda x : x != '', 4))
-        EMPTY_IMG = getConfig(indexer, "empty"  , lambda x : x != '', "-")
-        TITLE_LEVEL = int(getConfig(indexer, "title_level", lambda x : x.isdigit(), 2))
-
-    except configparser.NoSectionError as e:
-        print("Entry section found:", e)
-        exit(1)
+    with open(".config.json", "r") as f:
+        def _json_object_hook(d): return namedtuple('X', d.keys())(*d.values())
+        global CFG
+        CFG = json.load(f, object_hook=_json_object_hook)
 
 def main():
     parser = argparse.ArgumentParser(prog='indexer.py')
@@ -380,22 +326,25 @@ def main():
 
     itens = Itens()
     if args.s:
-        print("obtendo nomes do arquivo names.txt")
+        print("obtendo nomes do board")
         itens.parseFromBoard()
         itens.updateTitles()
+        #reload and sort
         itens = Itens()
         itens.parseFromFolders()
     else:
-        print("obtendo nomes dos títulos dos arquivos")
+        print("obtendo nomes das pastas")
         itens.parseFromFolders()
 
-    if BOARD != None:
+    if CFG.board != None:
         itens.generateBoard()
-    if SUMMARY != None or INDEX != None:
+    if CFG.index != None:
         itens.generateIndex()
-    if LINKS != None:
+    if CFG.summary != None:
+        itens.generateSummary()
+    if CFG.links_dir != None:
         itens.generateLinks()
-    if VIEW != None:
+    if CFG.view != None:
         itens.generateView()
     print("all done")
 
