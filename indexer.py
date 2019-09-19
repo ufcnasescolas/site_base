@@ -13,7 +13,15 @@ from collections import namedtuple
 
 import io
 
-CFG = {}
+def loadConfig():
+    if not os.path.isfile(".config.json"):
+        print("create a .config.json like in https://github.com/senapk/indexer")
+        exit(1)
+    with open(".config.json", "r") as f:
+        def _json_object_hook(d): return namedtuple('X', d.keys())(*d.values())
+        return json.load(f, object_hook=_json_object_hook)
+
+CFG = loadConfig()
 
 class Hook:
     @staticmethod
@@ -308,21 +316,12 @@ class Itens:
     def __str__(self):
         return "\n".join(str(v) for v in self.itens)
 
-def loadGlobals():
-    if not os.path.isfile(".config.json"):
-        print("create a .config.json like in https://github.com/senapk/indexer")
-        exit(1)
-    with open(".config.json", "r") as f:
-        def _json_object_hook(d): return namedtuple('X', d.keys())(*d.values())
-        global CFG
-        CFG = json.load(f, object_hook=_json_object_hook)
+
 
 def main():
     parser = argparse.ArgumentParser(prog='indexer.py')
     parser.add_argument('-s', action='store_true', help='set titles using names.txt')
     args = parser.parse_args()
-    
-    loadGlobals()
 
     itens = Itens()
     if args.s:
