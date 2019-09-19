@@ -1,0 +1,5 @@
+## ¢2019-06-18 Recepção da escola Adolfo Ferreira £Recepções
+
+![](__capa.jpg)
+
+Para fechar o semestre hoje os alunos do projeto UFC nas Escolas recebeu a turma dos 3° ano de Redes de Computadores da escola técnica Adolfo Ferreira de Sousa localizada na cidade de Redenção, eles fizeram uma vaquinha para fretar um ônibus e fazer a visita ao nosso campus, os alunos estavam bastante animados em conhecer a UFC, falamos sobre os cursos e laboratórios existentes, depois dividimos equipes de alunos para conhecer cada setor de nossa estrutura, e deram uma passada pelo Inove para conhecer mais sobre as startups que vem se destacando no Ceará e no Brasil,bateram uma papo com a Kátia nossa assistente social  para saber mais detalhes sobre as bolsas e auxílios, estamos muito felizes com a visita desta escola no nosso Campus e futuramente serão os nossos discentes daqui a 1 ano, a UFC Campus-Quixadá agradece a visita e sempre estará de portas abertas para recepciona-los novamente, nosso muito Obrigado!!
