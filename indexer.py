@@ -228,9 +228,9 @@ class Itens:
         tree = {}
         for item in itens:
             if item.cat == None:
-                if not 'orphan' in tree:
-                    tree['orphan'] = []
-                tree['orphan'].append(item)
+                if not '_' in tree:
+                    tree['_'] = []
+                tree['_'].append(item)
             else:
                 if not item.cat in tree:
                     tree[item.cat] = []
@@ -258,7 +258,9 @@ class Itens:
     def makeTableEntry(lista, prefix):
         data = []
         for item in lista:
-            title = "@" + item.hook + " " + item.title
+            title = item.title
+            if item.date:
+                title = item.date + "<br>" + title
             sourceReadme = prefix + BASE + os.sep + item.hook + os.sep + "Readme.md"
             sourceThumb  = prefix + THUMB + os.sep + item.hook + ".jpg"
 
@@ -289,8 +291,6 @@ class Itens:
     def generateView(self):
         for item in self.itens:
             Itens.makeThumb(item.hook)
-
-        self.itens.sort(key=lambda x: x.getFulltitle())
         tree = Itens.tree_generate(self.itens)
         view_text = io.StringIO()
         view_text.write("## @qxcode\n\n")
@@ -299,7 +299,7 @@ class Itens:
 
         for cat, lista in tree.items():
             view_text.write("\n### " + cat + "\n\n")
-            lista.sort(key=lambda x: x.title) 
+            lista.sort(key=lambda x: x.getFulltitle(), reverse = True) 
             text = Itens.makeTableEntry(lista, prefix)
             view_text.write(text)
         
