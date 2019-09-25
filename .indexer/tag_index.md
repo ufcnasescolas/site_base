@@ -1,12 +1,16 @@
 ## @qxcode
 
-## Categorias
 
+### Notícias
+
+- [De volta ao lar](../base/01/Readme.md#2017-07-05-de-volta-ao-lar-notícias)
+
+### Noticías
+
+- [Um bom começo](../base/02/Readme.md#2018-02-05-um-bom-começo-noticías)
 
 ### -
 
-- [De volta ao lar](../base/01/Readme.md#2017-07-05-de-volta-ao-lar-notícias)
-- [Um bom começo](../base/02/Readme.md#2018-02-05-um-bom-começo-noticías)
 - [Recepção da escola Joaquim Antônio Albano](../base/03/Readme.md#2019-05-07-recepção-da-escola-joaquim-antônio-albano-recepções)
 - [Recepção da escola Paulo Sarasate](../base/04/Readme.md#2019-05-08-recepção-da-escola-paulo-sarasate-recepções)
 - [Visita à escola Abraão Baquit](../base/05/Readme.md#2019-05-12-visita-à-escola-abraão-baquit-visitas)
