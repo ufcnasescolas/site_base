@@ -1,5 +1,5 @@
-## ¢2019-05-24 Visita à escola Valder Ribeiro £Visitas
-
+## ©visitas ð2019-05-24 Visita à escola Valder Ribeiro
+###
 ![](__capa.jpg)
 
 E o UFC nas escolas no dia 24 de maio foi longe, visitou a escolas EEMTI José Valdo Ribeiro Ramos localizada em Fortaleza, onde uma ex-aluna do mesmo, que hoje faz parte da família UFC nas escolas, “Amanda Peixoto” foi apresentar um pouquinho do nosso campus, teve palestra falando sobre cursos e até mesmo de forma geral, mostrando um pouquinho das oportunidades que a UFC Quixadá disponibiliza, teve roda de conversa sobre o mercado de trabalho e oportunidades na área da TI.

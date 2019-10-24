@@ -1,5 +1,5 @@
-## ¢2019-05-15 Visita à escola Virgílio Távora £Visitas
-
+## ©visitas ð2019-05-15 Visita à escola Virgílio Távora
+###
 ![](__capa.jpg)
 
 O projeto UFC nas Escolas esteve na escola de ensino médio Virgílio Távora em Quixadá apresentando nossos cursos, bolsas e estrutura que a UFC nos oferece.

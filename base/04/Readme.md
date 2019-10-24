@@ -1,5 +1,5 @@
-## ¢2019-05-08 Recepção da escola Paulo Sarasate £Recepções
-
+## ©recepcoes ð2019-05-08 Recepção da escola Paulo Sarasate
+###
 ![](__capa.jpg)
 
 A turma do 9º ano do ensino médio da escola Paulo Sarasate, localizada na cidade de Banabuiú, percorreram cerca 57 km do dia 8 de Maio de 2019 para conhecer um pouco mais dos cursos e estrutura da UFC-Quixadá.

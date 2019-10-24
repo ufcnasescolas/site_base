@@ -1,5 +1,5 @@
-## ¢2019-05-24 Visita à escola Waldemar Falcão £Visitas
-
+## ©visitas ð2019-05-24 Visita à escola Waldemar Falcão
+###
 ![](__capa.jpg)
 
 E o projeto UFC nas escolas continua indo longe, mais uma escola visitada no dia 24 Maio, a da vez foi EEM Waldemar Falcão com 1700 alunos, situado em fortaleza em uma região carente com um elevado índice de criminalidade, o colégio enfrenta algumas dificuldades com relação há recursos, tais como materiais essências para se manter e até mesmo espaço,pois comporta muitos alunos para pouco espaço.

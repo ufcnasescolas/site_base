@@ -1,5 +1,5 @@
-## ¢2019-06-18 Visita ao IFCE £Visitas
-
+## ©visitas ð2019-06-18 Visita ao IFCE
+###
 ![](__capa.jpg)
 
 A visita ao IFCE foi bem desafiadora para os membros do projeto UFC nas Escolas pois primeiro tivermos que agendar uma visita para o coordenador de curso do instituto, porém o mesmo não se encontrava, mas a Danielle Queiroz vice Coordenadora  falou com os membros do projeto e autorizou eles a apresentar um pouco do que se trata o projeto UFC nas Escolas, a parte mais difícil foi quando ela falou que eles só teriam 10 minutos para apresentar e só uma turma para apresentar pois a outra turma estavam fazendo provas, mas os meninos do projeto foram até fim e apresentaram os cursos e premiações que recebemos até agora, e estrutura do nosso campus, os alunos fizeram bastante e perguntas e se interessaram pelo curso de Engenharia de Software. logo após a conversa sobre o projeto UFC nas Escolas, Alan do curso técnico de edificações relatou:

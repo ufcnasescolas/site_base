@@ -1,5 +1,5 @@
-## ¢2019-05-12 Visita à escola Abraão Baquit £Visitas
-
+## ©visitas ð2019-05-12 Visita à escola Abraão Baquit
+###
 ![](__capa.jpg)
 
 O projeto de extensão UFC nas Escolas também esteve à 40 km da cidade de Quixadá no anexo da Escola de Ensino Médio Abraão incentivando os alunos do distrito Cipó dos Anjos a entrar no ensino superior e apresentando todo o suporte que a universidade oferece: bolsas, auxílios e uma estrutura de qualidade.

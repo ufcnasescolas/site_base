@@ -1,5 +1,5 @@
-## ¢2019-05-23 Visita à escola Governador César Cals £Visitas
-
+## ©visitas ð2019-05-23 Visita à escola Governador César Cals
+###
 ![](__capa.jpg)
 
 Ontem estivemos na escola de ensino médio e integral, Gov. César Cals de Oliveira, mostrando um pouco sobre o projeto UFC nas Escolas, em cada escola que passamos nos deixa experiências únicas e incríveis, e a escola César Cals foi uma delas, a gente falou sobre os cursos e bolsas e estruturas da UFC, e falamos também da experiência que cada membro do projeto UFC nas Escolas superou para chegar até a universidade.

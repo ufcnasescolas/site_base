@@ -1,27 +1,30 @@
 {
-    "base": "base",
-    "config": ".indexer",
-    "cat": {
-        "summary" : ".indexer/cat_summary.md",
-        "index"   : ".indexer/cat_index.md",
-        "view"    : "Readme.md"
+  "execute": [
+    {
+      "action": "load_folder",
+      "dir": "base"
     },
-    "tag":{
-        "summary" : ".indexer/tag_summary.md",
-        "index"   : ".indexer/tag_index.md",
-        "view"    : ".indexer/tag_view.md"
+    {
+      "action": "board",
+      "file": "board.md"
     },
-    "extra":{
-        "orphan" : "-",
-        "empty_fig": ".indexer/empty.png",
-        "posts_per_row": 4,
-        "reverse_sort": true
+    {
+      "action": "links",
+      "dir": ".indexer/links"
     },
-    "symbols":{
-        "tag": "#",
-        "category": "$",
-        "date": "¢",
-        "author": "£",
-        "subtitle": "&"
+    {
+      "action": "thumbs",
+      "width": 320,
+      "height": 180
+    },
+    {
+      "action": "view",
+      "intro": null,
+      "file": "Readme.md",
+      "group_by": "categories",
+      "reverse_sort": true,
+      "posts_per_row": 3,
+      "empty_fig": null
     }
+  ]
 }

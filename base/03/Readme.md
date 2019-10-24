@@ -1,5 +1,5 @@
-## ¢2019-05-07 Recepção da escola Joaquim Antônio Albano £Recepções
-
+## ©recepcoes ð2019-05-07 Recepção da escola Joaquim Antônio Albano
+###
 ![](__capa.jpg)
 
 No dia 07 de maio, a escola profissional Joaquim Antônio Albano de Fortaleza visitou o Campus UFC Quixadá. A recepção foi realizada pelos bolsistas e voluntários do projeto de extensão UFC nas Escolas.

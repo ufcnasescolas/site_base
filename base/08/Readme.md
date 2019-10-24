@@ -1,5 +1,5 @@
-## ¢2019-05-24 Recepção da escola Abraão Baquit £Recepções
-
+## ©recepcoes ð2019-05-24 Recepção da escola Abraão Baquit
+###
 ![](__capa.jpg)
 
 Na tarde do dia 24 de Maio de 2019, 82 alunos da escola Abraão Baquit extensão de uma escola situada na sede de Quixadá, logo esta extensão, fica em um distrito chamado Cipó dos Anjos, escola de ensino médio é situada há aproximadamente 40 km da cidade de Quixadá.
